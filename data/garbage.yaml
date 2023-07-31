@@ -1,0 +1,9 @@
+# train and val data
+# train: /home/jetson/software/yolov5-5.0/data/garbage/train/images
+train: D:/yolov5/data/garbage/train/images
+# val: /home/jetson/software/yolov5-5.0/data/garbage/train/images
+val: D:/yolov5/data/garbage/train/images
+# number of classes
+nc: 2
+# class names
+names: ["Go","Stop"]

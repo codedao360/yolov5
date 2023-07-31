@@ -316,15 +316,80 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
         n = n_ = max(round(n * gd), 1) if n > 1 else n  # depth gain
         if m in {
                 Conv, GhostConv, Bottleneck, GhostBottleneck, SPP, SPPF, DWConv, MixConv2d, Focus, CrossConv,
-                BottleneckCSP, C3, C3TR, C3SPP, C3Ghost, nn.ConvTranspose2d, DWConvTranspose2d, C3x}:
+                BottleneckCSP, C3, C3TR, C3SPP, C3Ghost, nn.ConvTranspose2d, DWConvTranspose2d, C3x, C3HB, C3RFEM}:
             c1, c2 = ch[f], args[0]
             if c2 != no:  # if not output
                 c2 = make_divisible(c2 * gw, 8)
 
             args = [c1, c2, *args[1:]]
-            if m in {BottleneckCSP, C3, C3TR, C3Ghost, C3x}:
+            if m in {BottleneckCSP, C3, C3TR, C3Ghost, C3x, C3HB, C3RFEM}:
                 args.insert(2, n)  # number of repeats
                 n = 1
+        # add module research Tung
+        elif m in [CNeB, C3GC,C3C2, HorBlock]:
+            c1, c2 = ch[f], args[0]
+            if c2 != no:  # if not output
+                c2 = make_divisible(c2 * gw, 8), 
+
+            args = [c1, c2, *args[1:]]
+            if m in [CNeB, C3GC,C3C2, HorBlock]:
+                args.insert(2, n)  # number of repeats
+                n = 1
+            elif m is nn.ConvTranspose2d:
+                if len(args) >= 7:
+                    args[6] = make_divisible(args[6] * gw, 8)
+        elif m in [GSConv, VoVGSCSP]:
+            c1, c2 = ch[f], args[0]
+            if c2 != no:  # if not output
+                c2 = make_divisible(c2 * gw, 8)
+
+            args = [c1, c2, *args[1:]]
+            if m in [VoVGSCSP]:
+                args.insert(2, n)  # number of repeats
+                n = 1
+        elif m in [ConvNextBlock]:
+            c1, c2 = ch[f], args[0]
+            if c2 != no:  # if not output
+                c2 = make_divisible(c2 * gw, 8)
+
+            args = [c1, c2, *args[1:]]
+            if m in [ConvNextBlock]:
+                args.insert(2, n)  # number of repeats
+                n = 1
+
+        elif m is space_to_depth:
+            c2 = 4 * ch[f]
+        
+        elif m in [S2Attention, SimSPPF, ACmix, CrissCrossAttention, SOCA, ShuffleAttention, SEAttention, SimAM, SKAttention]:
+            c1, c2 = ch[f], args[0]
+            if c2 != no:  # if not output
+                c2 = make_divisible(c2 * gw, 8)
+            args = [c1, *args[1:]]
+
+         # torchvision
+        elif m is RegNet1 or m is RegNet2 or m is RegNet3:
+            c2 = args[0]
+        elif m is Efficient1 or m is Efficient2 or m is Efficient3:
+            c2 = args[0]
+        elif m is MobileNet1 or m is MobileNet2 or m is MobileNet3:
+            c2 = args[0]
+
+        elif m in [CBH, ES_Bottleneck, DWConvblock, RepVGGBlock, LC_Block, Dense, conv_bn_relu_maxpool, \
+                   Shuffle_Block, stem, mobilev3_bneck, conv_bn_hswish, MobileNetV3_InvertedResidual, DepthSepConv, \
+                   ShuffleNetV2_Model, Conv_maxpool, CoT3, ConvNextBlock, RepBlock]:
+            c1, c2 = ch[f], args[0]
+            if c2 != no:  # if not output
+                c2 = make_divisible(c2 * gw, 8)
+
+            args = [c1, c2, *args[1:]]
+            if m in [CoT3, ConvNextBlock]:
+                args.insert(2, n)  # number of repeats
+                n = 1
+        elif m is RepBlock:
+            args.insert(2, n)
+            n = 1
+
+        # Tung end
         elif m is nn.BatchNorm2d:
             args = [ch[f]]
         elif m is Concat:
@@ -336,6 +401,7 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
                 args[1] = [list(range(args[1] * 2))] * len(f)
             if m is Segment:
                 args[3] = make_divisible(args[3] * gw, 8)
+        
         elif m is Contract:
             c2 = ch[f] * args[0] ** 2
         elif m is Expand:

@@ -1,0 +1,11 @@
+# train and val data
+# train: /home/jetson/software/yolov5-5.0/data/garbage/train/images
+train: C:/training/train
+# val: /home/jetson/software/yolov5-5.0/data/garbage/train/images
+val: C:/training/val
+# number of classes
+nc: 16
+# class names
+names: ["camdinguocchieu", 
+"stop", "nostopnopark", "camdo", "camoto", "camotorephai", "camotoretrai", "phairephai", "phairetrai", "phaidithang", "camretrai", "camrephai", "nguoidibo", "treem", "giaovoiduonguutien", "nguoidibo_vang"]
+

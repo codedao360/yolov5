@@ -1,0 +1,9 @@
+# train and val data
+# train: /home/jetson/software/yolov5-5.0/data/garbage/train/images
+train: D:/yolov5/data/garbage/train/traffic_usth/images
+# val: /home/jetson/software/yolov5-5.0/data/garbage/train/images
+val: D:/yolov5/data/garbage/train/traffic_usth/images
+# number of classes
+nc: 4
+# class names
+names: ["Limit 30km/h","Min speed 30km/h","Limit 70km/h", "Stop"]
